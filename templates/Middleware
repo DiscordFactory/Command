@@ -1,0 +1,8 @@
+import { Middleware, BaseMiddleware, MiddlewareContext } from '@discord-factory/core'
+
+@Middleware({ pattern: '$middleware' })
+export default class $className implements BaseMiddleware {
+	public async run(context: MiddlewareContext): Promise<boolean> {
+		// Your code here
+	}
+}
