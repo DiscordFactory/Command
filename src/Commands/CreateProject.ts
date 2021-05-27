@@ -5,6 +5,8 @@ import fs from 'fs';
 import path from "path";
 import PresetPackage from '../ClonePresets/Package'
 import PresetEnv from '../ClonePresets/Env'
+import PresetYaml from '../ClonePresets/EnvYaml'
+import PresetJson from '../ClonePresets/EnvJson'
 import Colors from "../Colors";
 
 type Project = {
@@ -14,6 +16,7 @@ type Project = {
   author: string,
   prefix: string,
   token: string,
+  environmentType: string
   partials: Array<string>
 }
 
@@ -65,6 +68,16 @@ export default class CreateProject extends Command {
           message: 'Who are you ?',
         },
         {
+          name: 'environmentType',
+          message: 'Which environment file do you want to use ?',
+          type: 'select',
+          choices: [
+            { name: 'env', value: 'ENV' },
+            { name: 'json', value: 'JSON' },
+            { name: 'yaml', value: 'YAML' },
+          ]
+        },
+        {
           name: 'prefix',
           type: 'text',
           message: 'Your discord bot prefix',
@@ -80,16 +93,16 @@ export default class CreateProject extends Command {
             return !!value.length
           }
         },
-        // {
-        //   name: 'partials',
-        //   message: 'Select the Partials you will need',
-        //   type: 'multiselect',
-        //   choices: [
-        //     { name: 'MESSAGE', value: 'MESSAGE' },
-        //     { name: 'CHANNEL', value: 'CHANNEL' },
-        //     { name: 'REACTION', value: 'REACTION' }
-        //   ]
-        // }
+        {
+          name: 'partials',
+          message: 'Select the Partials you will need',
+          type: 'multiselect',
+          choices: [
+            { name: 'MESSAGE', value: 'MESSAGE' },
+            { name: 'CHANNEL', value: 'CHANNEL' },
+            { name: 'REACTION', value: 'REACTION' }
+          ]
+        }
       ])
 
       await this.cloneProject(project)
@@ -110,15 +123,58 @@ export default class CreateProject extends Command {
           .replace('$project_author', project.author)
           .trim())
 
-      await fs.promises.writeFile(
-        path.join(process.cwd(), project.name, '.env'),
-        PresetEnv
-          .replace('$client_prefix', project.prefix)
-          .replace('$client_token', project.token)
-          .replace('$client_partials', JSON.stringify(project.partials))
-          .trim())
+      const environments: any = {
+        env: () => this.createEnv(project),
+        json: () => this.createJson(project),
+        yaml: () => this.createYaml(project),
+      }
+      environments[project.environmentType]()
 
-      process.stdout.write(`\n${Colors.TextGreen}Your project has been well initiated.${Colors.Reset}\n\n`)
     })
+  }
+
+  private async createEnv (project: Project) {
+    await fs.promises.writeFile(
+      path.join(process.cwd(), project.name, '.env'),
+      PresetEnv
+        .replace('$APP_TOKEN', project.token)
+        .replace('$APP_PREFIX', project.prefix)
+
+        .replace('$PARTIAL_MESSAGE', project.partials.some(p => p === 'MESSAGE').toString())
+        .replace('$PARTIAL_CHANNEL', project.partials.some(p => p === 'CHANNEL').toString())
+        .replace('$PARTIAL_REACTION', project.partials.some(p => p === 'REACTION').toString())
+        .trim())
+
+    process.stdout.write(`\n${Colors.TextGreen}✔️ Your project has been well initiated.${Colors.Reset}\n\n`)
+  }
+
+  private async createYaml (project: Project) {
+    await fs.promises.writeFile(
+      path.join(process.cwd(), project.name, 'environment.yaml'),
+      PresetYaml
+        .replace('$APP_TOKEN', project.token)
+        .replace('$APP_PREFIX', project.prefix)
+
+        .replace('$PARTIALS', project.partials.reduce((acc, current) => {
+          if (acc) {
+            return `- ${acc}\n` + `  - ${current}`
+          }
+          return `\n  - "${current}"`
+        })).replace('- -', '-')
+        .trim())
+
+    process.stdout.write(`\n${Colors.TextGreen}✔️ Your project has been well initiated.${Colors.Reset}\n\n`)
+  }
+
+  private async createJson (project: Project) {
+    await fs.promises.writeFile(
+      path.join(process.cwd(), project.name, 'environment.json'), JSON.stringify({
+        ...PresetJson,
+        APP_TOKEN: project.token,
+        APP_PREFIX: project.prefix,
+        PARTIALS: project.partials
+      }, null, " "))
+
+    process.stdout.write(`\n${Colors.TextGreen}✔️ Your project has been well initiated.${Colors.Reset}\n\n`)
   }
 }

@@ -31,7 +31,7 @@ export default `
     "typescript": "^4.2.3"
   },
   "dependencies": {
-    "@discord-factory/core": "^0.0.1",
+    "@discord-factory/core": "^0.2.0",
     "@discord-factory/motd": "^0.0.0",
     "discord.js": "^12.5.3",
     "module-alias": "^2.2.2",
