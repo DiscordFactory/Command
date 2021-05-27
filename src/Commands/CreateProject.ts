@@ -18,6 +18,7 @@ type Project = {
   token: string,
   environmentType: string
   partials: Array<string>
+  autoRemove: string
 }
 
 
@@ -102,6 +103,15 @@ export default class CreateProject extends Command {
             { name: 'CHANNEL', value: 'CHANNEL' },
             { name: 'REACTION', value: 'REACTION' }
           ]
+        },
+        {
+          name: 'autoRemove',
+          message: 'Do you want the order messages to be deleted automatically ?',
+          type: 'select',
+          choices: [
+            { name: 'Yes', value: 'true' },
+            { name: 'No', value: 'false' },
+          ]
         }
       ])
 
@@ -139,7 +149,7 @@ export default class CreateProject extends Command {
       PresetEnv
         .replace('$APP_TOKEN', project.token)
         .replace('$APP_PREFIX', project.prefix)
-
+        .replace('$PRESET_COMMAND_AUTO_REMOVE', (project.autoRemove === 'Yes').toString())
         .replace('$PARTIAL_MESSAGE', project.partials.some(p => p === 'MESSAGE').toString())
         .replace('$PARTIAL_CHANNEL', project.partials.some(p => p === 'CHANNEL').toString())
         .replace('$PARTIAL_REACTION', project.partials.some(p => p === 'REACTION').toString())
@@ -154,7 +164,7 @@ export default class CreateProject extends Command {
       PresetYaml
         .replace('$APP_TOKEN', project.token)
         .replace('$APP_PREFIX', project.prefix)
-
+        .replace('$COMMAND_AUTO_REMOVE', (project.autoRemove === 'Yes').toString())
         .replace('$PARTIALS', project.partials.reduce((acc, current) => {
           if (acc) {
             return `- ${acc}\n` + `  - ${current}`
@@ -167,11 +177,15 @@ export default class CreateProject extends Command {
   }
 
   private async createJson (project: Project) {
+    console.log(project)
     await fs.promises.writeFile(
       path.join(process.cwd(), project.name, 'environment.json'), JSON.stringify({
         ...PresetJson,
         APP_TOKEN: project.token,
         APP_PREFIX: project.prefix,
+        PRESETS: {
+          COMMAND_AUTO_REMOVE: project.autoRemove === 'Yes'
+        },
         PARTIALS: project.partials
       }, null, " "))
 
