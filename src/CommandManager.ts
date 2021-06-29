@@ -2,6 +2,7 @@ import BaseCommand from "./BaseCommand";
 import Help from "./Commands/Help";
 import { Command } from "./types/Command";
 import CreateProject from "./Commands/CreateProject";
+import MakeFile from "./Commands/MakeFile";
 
 export default class CommandManager {
   public static $instance: CommandManager
@@ -10,7 +11,8 @@ export default class CommandManager {
   constructor () {
     this.use(
       new Help(),
-      new CreateProject()
+      new CreateProject(),
+      new MakeFile()
     )
   }
 
@@ -27,10 +29,10 @@ export default class CommandManager {
     })
   }
 
-  public async dispatch (commandName: string): Promise<void> {
+  public async dispatch (commandName: string, ...params: string[]): Promise<void> {
     const command = this.commands.get(commandName)
     if (command) {
-      return command.run()
+      return command.run(...params)
     }
     await this.commands.get('help')?.run()
   }

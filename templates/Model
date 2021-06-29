@@ -1,0 +1,12 @@
+import { BaseModel, Entity, Column, PrimaryColumn, BeforeInsert, Generate } from '@discord-factory/storage'
+
+@Entity()
+export default class $className extends BaseModel {
+  @PrimaryColumn()
+  public id!: string
+
+  @BeforeInsert()
+  private generateUUID () {
+    this.id = Generate.generateUUID()
+  }
+}

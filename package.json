@@ -1,6 +1,6 @@
 {
 	"name": "@discord-factory/command",
-	"version": "2.1.1",
+	"version": "2.2.0",
 	"main": "build/index.js",
 	"repository": "git@github.com:DiscordFactory/Command.git",
 	"author": "Freeze455 <baptiste.parmantier.pro@gmail.com>",

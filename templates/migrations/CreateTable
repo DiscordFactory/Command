@@ -1,0 +1,17 @@
+import { BaseSchema, QueryRunner, Migration, Table } from '@discord-factory/storage'
+
+@Migration()
+export default class $className_$timestamp extends BaseSchema {
+  async up(query: QueryRunner): Promise<void> {
+    await query.createTable(new Table({
+      name: '$table',
+      columns: [
+        { name: 'id', type: 'uuid', isPrimary: true },
+      ],
+    }), true)
+  }
+
+  async down(query: QueryRunner): Promise<void> {
+    await query.dropTable('$table')
+  }
+}

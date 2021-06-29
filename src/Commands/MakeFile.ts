@@ -6,14 +6,22 @@ import { ClientEvents } from 'discord.js'
 import Events from '../Settings/Events'
 import Hooks from '../Settings/Hooks'
 import Colors from "../types/Colors";
+import Command from "../decorators/Command";
+import MakeCommand from "../makes/MakeCommand";
+import MakeEvent from "../makes/MakeEvent";
+import MakeHook from "../makes/MakeHook";
+import MakeMiddleware from "../makes/MakeMiddleware";
+import MakeModel from "../makes/MakeModel";
+import MakeMigrationCreateTable from "../makes/MakeMigrationCreateTable";
+import MakeMigrationAlterTable from "../makes/MakeMigrationAlterTable";
 
-type Actions = {
-  Event: () => Promise<void>,
-  Command: () => Promise<void>,
-  Middleware: () => Promise<void>
-  Hook: () => Promise<void>
-}
-
+@Command({
+  label: 'Make file',
+  description: 'Generates a commands, events, hooks, middlewares, models or migrations according to a question/answer set.',
+  usages: [
+    'factory make:file'
+  ]
+})
 export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand {
   constructor () {
     super('make:file');
@@ -28,11 +36,13 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
   }
 
   private async dispatchType (eventType: string) {
-    const actions: Actions = {
+    const actions: any = {
       Event: async () => this.initializeEvent(),
       Command: async () => this.initializeCommand(),
       Middleware: async () => this.initializeMiddleware(),
-      Hook: async () => this.initializeHook()
+      Hook: async () => this.initializeHook(),
+      Model: async () => this.initializeModel(),
+      Migration: async () => this.initializeMigration(),
     }
 
     // @ts-ignore
@@ -46,10 +56,12 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
         message: 'What type of file do you want ?',
         type: 'select',
         choices: [
-          'BaseCommand',
+          'Command',
           'Event',
           'Middleware',
-          'Hook'
+          'Hook',
+          'Model',
+          'Migration'
         ]
       }
     ])
@@ -106,22 +118,45 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
     }
   }
 
+  private async choiceMigration (): Promise<{ migration: string } | undefined> {
+    try {
+      return await prompt({
+        name: 'migration',
+        message: 'For which model do you want to generate a migration ?',
+        type: 'input'
+      })
+    } catch {
+    }
+  }
+
+  private async choiceMigrationType (): Promise<{ migrationType: string }> {
+    return await prompt([
+      {
+        name: 'migrationType',
+        message: 'Would you like to create or modify a table in your database ?',
+        type: 'select',
+        choices: [
+          'Create table',
+          'Alter table',
+        ]
+      }
+    ])
+  }
+
   private async initializeEvent (): Promise<void> {
     const event = (await this.choiceEvent())!.event
     const filename = (await this.choiceFilename())!.filename
 
     if (event && filename) {
-      await this.makeFile('Event', filename, { event })
+      await new MakeEvent().run(filename, { event })
     }
   }
 
   private async initializeCommand (): Promise<void> {
     const filename = (await this.choiceFilename())!.filename
-
     if (filename) {
-      await this.makeFile('BaseCommand', filename)
+      await new MakeCommand().run(filename)
     }
-
   }
 
   private async initializeMiddleware (): Promise<void> {
@@ -129,38 +164,53 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
     const filename = (await this.choiceFilename())!.filename
 
     if (middleware && filename) {
-      await this.makeFile('Middleware', filename, { middleware })
+      await new MakeMiddleware().run(filename, { middleware })
     }
   }
 
   private async initializeHook (): Promise<void> {
-
     const hook = (await this.choiceHook())!.hook
     const filename = (await this.choiceFilename())!.filename
 
     if (hook && filename) {
-      await this.makeFile('Hook', filename, { hook })
+      await new MakeHook().run(filename, { hook })
     }
   }
 
-  private async makeFile (type: string, targetLocation: string, fileOptions?: { event?: K, middleware?: string, hook?: string }): Promise<void> {
-    const location = path.parse(targetLocation)
-    const templateDir = path.join(__dirname, '..', '..', 'templates', type)
-    const templateFile = await fs.promises.readFile(templateDir, { encoding: 'utf-8' })
-    const targetFile = path.join(process.cwd(), 'src', location.dir, `${location.name}.ts`)
-    const filenameUpper = location.name.charAt(0).toUpperCase() + location.name.slice(1)
+  private async initializeModel (): Promise<void> {
+    const filename = (await this.choiceFilename())!.filename
 
-    await fs.promises.mkdir(path.join(process.cwd(), 'src', location.dir), { recursive: true })
+    if (filename) {
+      await new MakeModel().run(filename)
+    }
+  }
 
-    const fileData = templateFile
-      .replace(/\$className/g, filenameUpper)
-      .replace('$tag', location.name.toLowerCase())
-      .replace('$event', fileOptions?.event!)
-      .replace('$middleware', fileOptions?.middleware!)
-      .replace('$hook', fileOptions?.hook!)
+  private async initializeMigration (): Promise<void> {
+    const JsonPackage = await import(path.join(process.cwd(), 'package.json'))
+    if (!JsonPackage.dependencies['@discord-factory/storage']) {
+      process.stdout.write('\n' + Colors.TextCyan + 'The Storage package cannot be found, please install it using : ' + Colors.Reset)
+      process.stdout.write('\n' + Colors.Bright + Colors.TextCyan + ' • npm install @discord-factory/storage' + Colors.Reset + '\n\n')
+      return
+    }
 
-    await fs.promises.writeFile(targetFile, fileData)
+    const filename = (await this.choiceFilename())!.filename
+    const migration = (await this.choiceMigration())!.migration.toLowerCase()
+    const migrationType = (await this.choiceMigrationType()).migrationType
+    const timestamp = Date.now()
 
-    process.stdout.write(`${Colors.TextGreen}File was created : ${targetFile.replace(/\\/g, '\\\\')}.${Colors.Reset}\n`)
+    if (!filename) {
+      return
+    }
+
+    const p = filename.toLowerCase().split('/')
+    p[p.length] = `${timestamp}_${p.pop()}`
+
+    if (migrationType === 'Create table') {
+      await new MakeMigrationCreateTable().run(p.join('/'), { migration, timestamp })
+    }
+
+    if (migrationType === 'Alter table') {
+      await new MakeMigrationAlterTable().run(p.join('/'), { migration, timestamp })
+    }
   }
 }
