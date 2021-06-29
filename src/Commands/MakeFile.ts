@@ -1,11 +1,11 @@
-import Command from "../Command";
+import BaseCommand from "../BaseCommand";
 import { prompt } from "enquirer";
 import fs from "fs";
 import path from "path";
 import { ClientEvents } from 'discord.js'
 import Events from '../Settings/Events'
 import Hooks from '../Settings/Hooks'
-import Colors from "../Colors";
+import Colors from "../types/Colors";
 
 type Actions = {
   Event: () => Promise<void>,
@@ -14,7 +14,7 @@ type Actions = {
   Hook: () => Promise<void>
 }
 
-export default class MakeFile<K extends keyof ClientEvents> extends Command {
+export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand {
   constructor () {
     super('make:file');
   }
@@ -46,7 +46,7 @@ export default class MakeFile<K extends keyof ClientEvents> extends Command {
         message: 'What type of file do you want ?',
         type: 'select',
         choices: [
-          'Command',
+          'BaseCommand',
           'Event',
           'Middleware',
           'Hook'
@@ -119,7 +119,7 @@ export default class MakeFile<K extends keyof ClientEvents> extends Command {
     const filename = (await this.choiceFilename())!.filename
 
     if (filename) {
-      await this.makeFile('Command', filename)
+      await this.makeFile('BaseCommand', filename)
     }
 
   }

@@ -1,7 +1,7 @@
-import { BaseCommand, Command } from '@discord-factory/core'
+import { BaseCommand, BaseCommand } from '@discord-factory/core'
 import { Message } from 'discord.js'
 
-@Command({ label: '$className command', description: '$className description', tag: '$tag' })
+@BaseCommand({ label: '$className command', description: '$className description', tag: '$tag' })
 export default class $className implements BaseCommand {
 	public async run(message: Message, args: Array<string>): Promise<void> {
 		// Your code here

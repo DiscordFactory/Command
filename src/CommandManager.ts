@@ -1,22 +1,56 @@
-import Command from "./Command";
-import { Logger } from "@discord-architect/core";
-import Colors from "./Colors";
+import BaseCommand from "./BaseCommand";
+import Help from "./Commands/Help";
+import { Command } from "./types/Command";
+import CreateProject from "./Commands/CreateProject";
 
 export default class CommandManager {
-  private commandList: Map<string, Command> = new Map()
+  public static $instance: CommandManager
+  public commands: Map<string, Command> = new Map()
 
-  public register (command: Command) {
-    const item = this.commandList.get(command.identifier)
-
-    if (item) {
-      process.stdout.write(`${Colors.TextCyan}Your project has been well initiated.${Colors.Reset}\n`)
-      Logger.send('error', `The ${item.identifier} was already registered`)
-    }
-
-    this.commandList.set(command.identifier, command)
+  constructor () {
+    this.use(
+      new Help(),
+      new CreateProject()
+    )
   }
 
-  public getCommand(identifier: string): Command | undefined {
-    return this.commandList.get(identifier)
+  public static getInstance () {
+    if (!this.$instance) {
+      this.$instance = new CommandManager()
+    }
+    return this.$instance
+  }
+
+  private use (...commands: Command[]) {
+    commands.forEach((command) => {
+      this.commands.set(command.identifier, command)
+    })
+  }
+
+  public async dispatch (commandName: string): Promise<void> {
+    const command = this.commands.get(commandName)
+    if (command) {
+      return command.run()
+    }
+    await this.commands.get('help')?.run()
   }
 }
+
+// export default class CommandManager {
+//   private commandList: Map<string, BaseCommand> = new Map()
+//
+//   public register (command: BaseCommand) {
+//     const item = this.commandList.get(command.identifier)
+//
+//     if (item) {
+//       process.stdout.write(`${Colors.TextCyan}Your project has been well initiated.${Colors.Reset}\n`)
+//       Logger.send('error', `The ${item.identifier} was already registered`)
+//     }
+//
+//     this.commandList.set(command.identifier, command)
+//   }
+//
+//   public getCommand(identifier: string): BaseCommand | undefined {
+//     return this.commandList.get(identifier)
+//   }
+// }

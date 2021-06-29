@@ -1,13 +1,15 @@
-import Command from "../Command";
-import { prompt } from "enquirer";
-import { spawn } from "child_process";
-import fs from 'fs';
-import path from "path";
+import BaseCommand from "../BaseCommand"
+import { prompt } from "enquirer"
+import { spawn } from "child_process"
+import fs from 'fs'
+import path from "path"
 import PresetPackage from '../ClonePresets/Package'
 import PresetEnv from '../ClonePresets/Env'
 import PresetYaml from '../ClonePresets/EnvYaml'
 import PresetJson from '../ClonePresets/EnvJson'
-import Colors from "../Colors";
+import Colors from "../types/Colors"
+import Command from "../decorators/Command"
+import { getCoreVersion, getDiscordVersion } from "../utils/Package"
 
 type Project = {
   name: string
@@ -21,8 +23,12 @@ type Project = {
   autoRemove: string
 }
 
-
-export default class CreateProject extends Command {
+@Command({
+  label: 'Create project',
+  usages: ['factory create-project'],
+  description: 'This command generates a blank project based on a multiple choice questionnaire.'
+})
+export default class CreateProject extends BaseCommand {
   constructor () {
     super('create-project');
   }
@@ -66,7 +72,7 @@ export default class CreateProject extends Command {
         {
           name: 'author',
           type: 'text',
-          message: 'Who are you ?',
+          message: 'What is the name of the developer ?',
         },
         {
           name: 'environmentType',
@@ -121,7 +127,7 @@ export default class CreateProject extends Command {
   }
 
   private async cloneProject (project: Project) {
-    const ls = spawn('git', ['clone', 'https://github.com/DiscordFactory/Factory.git', project.name])
+    const ls = spawn('git', ['clone', '--progress', 'https://github.com/DiscordFactory/Factory.git', project.name])
 
     ls.on('close', async () => {
       await fs.promises.writeFile(
@@ -138,8 +144,8 @@ export default class CreateProject extends Command {
         json: () => this.createJson(project),
         yaml: () => this.createYaml(project),
       }
-      environments[project.environmentType]()
 
+      environments[project.environmentType]()
     })
   }
 
@@ -155,7 +161,7 @@ export default class CreateProject extends Command {
         .replace('$PARTIAL_REACTION', project.partials.some(p => p === 'REACTION').toString())
         .trim())
 
-    process.stdout.write(`\n${Colors.TextGreen}✔️ Your project has been well initiated.${Colors.Reset}\n\n`)
+    await this.sendInfo(project)
   }
 
   private async createYaml (project: Project) {
@@ -173,11 +179,10 @@ export default class CreateProject extends Command {
         })).replace('- -', '-')
         .trim())
 
-    process.stdout.write(`\n${Colors.TextGreen}✔️ Your project has been well initiated.${Colors.Reset}\n\n`)
+    await this.sendInfo(project)
   }
 
   private async createJson (project: Project) {
-    console.log(project)
     await fs.promises.writeFile(
       path.join(process.cwd(), project.name, 'environment.json'), JSON.stringify({
         ...PresetJson,
@@ -189,6 +194,17 @@ export default class CreateProject extends Command {
         PARTIALS: project.partials
       }, null, " "))
 
-    process.stdout.write(`\n${Colors.TextGreen}✔️ Your project has been well initiated.${Colors.Reset}\n\n`)
+    await this.sendInfo(project)
+  }
+
+  private async sendInfo (project: Project) {
+    process.stdout.write('\n' + Colors.Reverse + Colors.Bright + Colors.TextCyan + '✔️ Your project has been well initiated.' + Colors.Reset + '\n\n')
+    process.stdout.write(Colors.TextCyan + 'Version du core : ' + await getCoreVersion(project.name) + Colors.Reset + '\n')
+    process.stdout.write(Colors.TextCyan + 'Version de discord.js : ' + await getDiscordVersion(project.name) + Colors.Reset + '\n\n')
+
+    process.stdout.write(Colors.Bright + Colors.TextCyan + 'npm run dev : ' + Colors.Reset + Colors.TextCyan + 'Starts the application in the development environment.' + Colors.Reset + '\n')
+    process.stdout.write(Colors.Bright + Colors.TextCyan + 'npm run build : ' + Colors.Reset + Colors.TextCyan + 'Builds and optimises the application for production.' + Colors.Reset + '\n')
+    process.stdout.write(Colors.Bright + Colors.TextCyan + 'npm run start : ' + Colors.Reset + Colors.TextCyan + 'Starts the application in production mode.' + Colors.Reset + '\n')
+    process.stdout.write(Colors.Bright + Colors.TextCyan + 'npm run test : ' + Colors.Reset + Colors.TextCyan + 'Run the application tests.' + Colors.Reset + '\n')
   }
 }

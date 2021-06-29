@@ -1,4 +1,4 @@
-export default abstract class Command {
+export default abstract class BaseCommand {
   protected constructor (readonly identifier: string) {
   }
 
