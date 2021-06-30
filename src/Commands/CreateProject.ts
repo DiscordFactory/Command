@@ -9,7 +9,7 @@ import PresetYaml from '../ClonePresets/EnvYaml'
 import PresetJson from '../ClonePresets/EnvJson'
 import Colors from "../types/Colors"
 import Command from "../decorators/Command"
-import { getCoreVersion, getDiscordVersion } from "../utils/Package"
+import { getCoreVersion, getDiscordVersion, getPackage } from "../utils/Package"
 
 type Project = {
   name: string
@@ -130,14 +130,18 @@ export default class CreateProject extends BaseCommand {
     const ls = spawn('git', ['clone', '--progress', 'https://github.com/DiscordFactory/Factory.git', project.name])
 
     ls.on('close', async () => {
+      const json = {
+        ...await getPackage(project.name),
+        name: project.name,
+        version: project.version,
+        description: project.description,
+        author: project.author
+      }
+
       await fs.promises.writeFile(
         path.join(process.cwd(), project.name, 'package.json'),
-        PresetPackage
-          .replace('$project_name', project.name)
-          .replace('$project_version', project.version)
-          .replace('$project_description', project.description)
-          .replace('$project_author', project.author)
-          .trim())
+        JSON.stringify(json,null,2)
+      )
 
       const environments: any = {
         env: () => this.createEnv(project),

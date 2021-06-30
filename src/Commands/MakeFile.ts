@@ -1,6 +1,5 @@
 import BaseCommand from "../BaseCommand";
-import { prompt } from "enquirer";
-import fs from "fs";
+import { prompt } from 'enquirer'
 import path from "path";
 import { ClientEvents } from 'discord.js'
 import Events from '../Settings/Events'

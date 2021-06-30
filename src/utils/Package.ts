@@ -1,16 +1,18 @@
 import path from 'path'
+import fs from 'fs'
 
-async function getPackage (projectName: string) {
+export async function getPackage (projectName: string): Promise<any> {
   const location = path.join(process.cwd(), projectName, 'package.json')
-  return import(location)
+  const jsonPackage = await fs.promises.readFile(location, 'utf-8')
+  return JSON.parse(jsonPackage)
 }
 
 export async function getCoreVersion (projectName: string) {
   const JsonPackage = await getPackage(projectName)
-  return JsonPackage.default.dependencies['@discord-factory/core']
+  return JsonPackage.dependencies['@discord-factory/core']
 }
 
 export async function getDiscordVersion (projectName: string) {
   const JsonPackage = await getPackage(projectName)
-  return JsonPackage.default.dependencies['discord.js']
+  return JsonPackage.dependencies['discord.js']
 }
