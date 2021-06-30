@@ -3,7 +3,6 @@ import path from "path";
 import fs from "fs";
 import Colors from "../types/Colors";
 import { prepareFile } from "../utils/Files";
-import { FileOptions } from "../types/Makes";
 
 export default class MakeModel extends BaseMakeFile {
   constructor () {

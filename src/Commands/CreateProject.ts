@@ -3,13 +3,12 @@ import { prompt } from "enquirer"
 import { spawn } from "child_process"
 import fs from 'fs'
 import path from "path"
-import PresetPackage from '../ClonePresets/Package'
 import PresetEnv from '../ClonePresets/Env'
-import PresetYaml from '../ClonePresets/EnvYaml'
 import PresetJson from '../ClonePresets/EnvJson'
 import Colors from "../types/Colors"
 import Command from "../decorators/Command"
 import { getCoreVersion, getDiscordVersion, getPackage } from "../utils/Package"
+import YAML from 'js-yaml'
 
 type Project = {
   name: string
@@ -140,7 +139,7 @@ export default class CreateProject extends BaseCommand {
 
       await fs.promises.writeFile(
         path.join(process.cwd(), project.name, 'package.json'),
-        JSON.stringify(json,null,2)
+        JSON.stringify(json, null, 2)
       )
 
       const environments: any = {
@@ -169,19 +168,26 @@ export default class CreateProject extends BaseCommand {
   }
 
   private async createYaml (project: Project) {
+    const yaml = {
+      APP_TOKEN: project.token,
+      APP_PREFIX: project.prefix,
+      PARTIALS: project.partials,
+      PRESETS: {
+        COMMAND_AUTO_REMOVE: project.autoRemove === 'Yes'
+      },
+      MESSAGES: {
+        COMMAND_MISSING_PERMISSION: 'You\'re not authorized to execute this command',
+        COMMAND_MISSING_ROLES: 'You\'re not authorized to execute this command',
+        ENVIRONMENT_FILE_PREFIX_MISSING: 'The prefix is missing in the environment file.',
+        ENVIRONMENT_FILE_TOKEN_MISSING: 'The token is missing in the environment file.',
+        ENVIRONMENT_FILE_MISSING: 'Environment file is missing, please create one.',
+      }
+    }
+
     await fs.promises.writeFile(
       path.join(process.cwd(), project.name, 'environment.yaml'),
-      PresetYaml
-        .replace('$APP_TOKEN', project.token)
-        .replace('$APP_PREFIX', project.prefix)
-        .replace('$COMMAND_AUTO_REMOVE', (project.autoRemove === 'Yes').toString())
-        .replace('$PARTIALS', project.partials.reduce((acc, current) => {
-          if (acc) {
-            return `- ${acc}\n` + `  - ${current}`
-          }
-          return `\n  - "${current}"`
-        })).replace('- -', '-')
-        .trim())
+      YAML.dump(yaml)
+    )
 
     await this.sendInfo(project)
   }
@@ -209,6 +215,6 @@ export default class CreateProject extends BaseCommand {
     process.stdout.write(Colors.Bright + Colors.TextCyan + 'npm run dev : ' + Colors.Reset + Colors.TextCyan + 'Starts the application in the development environment.' + Colors.Reset + '\n')
     process.stdout.write(Colors.Bright + Colors.TextCyan + 'npm run build : ' + Colors.Reset + Colors.TextCyan + 'Builds and optimises the application for production.' + Colors.Reset + '\n')
     process.stdout.write(Colors.Bright + Colors.TextCyan + 'npm run start : ' + Colors.Reset + Colors.TextCyan + 'Starts the application in production mode.' + Colors.Reset + '\n')
-    process.stdout.write(Colors.Bright + Colors.TextCyan + 'npm run test : ' + Colors.Reset + Colors.TextCyan + 'Run the application tests.' + Colors.Reset + '\n')
+    process.stdout.write(Colors.Bright + Colors.TextCyan + 'npm run test : ' + Colors.Reset + Colors.TextCyan + 'Run the application tests.' + Colors.Reset + '\n\n')
   }
 }

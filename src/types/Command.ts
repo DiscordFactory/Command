@@ -6,5 +6,6 @@ export type CommandContext = {
 
 export interface Command extends CommandContext {
   identifier: string
+
   run (...params: string[]): void
 }
