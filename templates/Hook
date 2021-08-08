@@ -2,7 +2,7 @@ import { Hook, BaseHook } from '@discord-factory/core'
 
 @Hook('$hook')
 export default class $className implements BaseHook {
-    public async run(...args: Array<any>): Promise<void> {
-        // Your code here
-    }
+  public async run(...args: Array<any>): Promise<void> {
+    // Your code here
+  }
 }

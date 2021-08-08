@@ -13,6 +13,7 @@ import MakeMiddleware from "../makes/MakeMiddleware";
 import MakeModel from "../makes/MakeModel";
 import MakeMigrationCreateTable from "../makes/MakeMigrationCreateTable";
 import MakeMigrationAlterTable from "../makes/MakeMigrationAlterTable";
+import MakeSlashCommand from "../makes/MakeSlashCommand";
 
 @Command({
   label: 'Make file',
@@ -38,6 +39,7 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
     const actions: any = {
       Event: async () => this.initializeEvent(),
       Command: async () => this.initializeCommand(),
+      SlashCommand: async () => this.initializeSlashCommand(),
       Middleware: async () => this.initializeMiddleware(),
       Hook: async () => this.initializeHook(),
       Model: async () => this.initializeModel(),
@@ -56,6 +58,7 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
         type: 'select',
         choices: [
           'Command',
+          'SlashCommand',
           'Event',
           'Middleware',
           'Hook',
@@ -155,6 +158,13 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
     const filename = (await this.choiceFilename())!.filename
     if (filename) {
       await new MakeCommand().run(filename)
+    }
+  }
+
+  private async initializeSlashCommand (): Promise<void> {
+    const filename = (await this.choiceFilename())!.filename
+    if (filename) {
+      await new MakeSlashCommand().run(filename)
     }
   }
 

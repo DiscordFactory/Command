@@ -1,0 +1,16 @@
+import { SlashCommand, BaseSlashCommand } from '@discord-factory/core'
+import { CommandInteraction } from 'discord.js'
+
+@SlashCommand({
+  scope: 'GLOBAL',
+  options: {
+    name: '$tag',
+    description: '$className description',
+    options: [],
+  },
+})
+export default class $className implements BaseSlashCommand {
+  public async run(interaction: CommandInteraction): Promise<void> {
+    // Your code here
+  }
+}
