@@ -18,7 +18,8 @@ type Project = {
   prefix: string,
   token: string,
   environmentType: string
-  partials: Array<string>
+  partials: string[]
+  intents: string[]
   autoRemove: string
 }
 
@@ -110,6 +111,28 @@ export default class CreateProject extends BaseCommand {
           ]
         },
         {
+          name: 'intents',
+          message: 'Select all intents you will need',
+          type: 'multiselect',
+          choices: [
+            { name: 'GUILDS', value: 'GUILDS' },
+            { name: 'GUILD_MEMBERS', value: 'GUILD_MEMBERS' },
+            { name: 'GUILD_BANS', value: 'GUILD_BANS' },
+            { name: 'GUILD_EMOJIS_AND_STICKERS', value: 'GUILD_EMOJIS_AND_STICKERS' },
+            { name: 'GUILD_INTEGRATIONS', value: 'GUILD_INTEGRATIONS' },
+            { name: 'GUILD_WEBHOOKS', value: 'GUILD_WEBHOOKS' },
+            { name: 'GUILD_INVITES', value: 'GUILD_INVITES' },
+            { name: 'GUILD_VOICE_STATES', value: 'GUILD_VOICE_STATES' },
+            { name: 'GUILD_PRESENCES', value: 'GUILD_PRESENCES' },
+            { name: 'GUILD_MESSAGES', value: 'GUILD_MESSAGES' },
+            { name: 'GUILD_MESSAGE_REACTIONS', value: 'GUILD_MESSAGE_REACTIONS' },
+            { name: 'GUILD_MESSAGE_TYPING', value: 'GUILD_MESSAGE_TYPING' },
+            { name: 'DIRECT_MESSAGES', value: 'DIRECT_MESSAGES' },
+            { name: 'DIRECT_MESSAGE_REACTIONS', value: 'DIRECT_MESSAGE_REACTIONS' },
+            { name: 'DIRECT_MESSAGE_TYPING', value: 'DIRECT_MESSAGE_TYPING' },
+          ]
+        },
+        {
           name: 'autoRemove',
           message: 'Do you want the order messages to be deleted automatically ?',
           type: 'select',
@@ -162,6 +185,22 @@ export default class CreateProject extends BaseCommand {
         .replace('$PARTIAL_MESSAGE', project.partials.some(p => p === 'MESSAGE').toString())
         .replace('$PARTIAL_CHANNEL', project.partials.some(p => p === 'CHANNEL').toString())
         .replace('$PARTIAL_REACTION', project.partials.some(p => p === 'REACTION').toString())
+
+        .replace('$INTENT_GUILDS', project.intents.some(p => p === 'GUILDS').toString())
+        .replace('$INTENT_GUILD_MEMBERS', project.intents.some(p => p === 'GUILD_MEMBERS').toString())
+        .replace('$INTENT_GUILD_BANS', project.intents.some(p => p === 'GUILD_BANS').toString())
+        .replace('$INTENT_GUILD_EMOJIS_AND_STICKERS', project.intents.some(p => p === 'GUILD_EMOJIS_AND_STICKERS').toString())
+        .replace('$INTENT_GUILD_INTEGRATIONS', project.intents.some(p => p === 'GUILD_INTEGRATIONS').toString())
+        .replace('$INTENT_GUILD_WEBHOOKS', project.intents.some(p => p === 'GUILD_WEBHOOKS').toString())
+        .replace('$INTENT_GUILD_INVITES', project.intents.some(p => p === 'GUILD_INVITES').toString())
+        .replace('$INTENT_GUILD_VOICE_STATES', project.intents.some(p => p === 'GUILD_VOICE_STATES').toString())
+        .replace('$INTENT_GUILD_PRESENCES', project.intents.some(p => p === 'GUILD_PRESENCES').toString())
+        .replace('$INTENT_GUILD_MESSAGES', project.intents.some(p => p === 'GUILD_MESSAGES').toString())
+        .replace('$INTENT_GUILD_MESSAGE_REACTIONS', project.intents.some(p => p === 'GUILD_MESSAGE_REACTIONS').toString())
+        .replace('$INTENT_GUILD_MESSAGE_TYPING', project.intents.some(p => p === 'GUILD_MESSAGE_TYPING').toString())
+        .replace('$INTENT_DIRECT_MESSAGES', project.intents.some(p => p === 'DIRECT_MESSAGES').toString())
+        .replace('$INTENT_DIRECT_MESSAGE_REACTIONS', project.intents.some(p => p === 'DIRECT_MESSAGE_REACTIONS').toString())
+        .replace('$INTENT_DIRECT_MESSAGE_TYPING', project.intents.some(p => p === 'DIRECT_MESSAGE_TYPING').toString())
         .trim())
 
     await this.sendInfo(project)
@@ -172,6 +211,7 @@ export default class CreateProject extends BaseCommand {
       APP_TOKEN: project.token,
       APP_PREFIX: project.prefix,
       PARTIALS: project.partials,
+      INTENTS: project.intents,
       PRESETS: {
         COMMAND_AUTO_REMOVE: project.autoRemove === 'Yes'
       },
@@ -201,7 +241,8 @@ export default class CreateProject extends BaseCommand {
         PRESETS: {
           COMMAND_AUTO_REMOVE: project.autoRemove === 'Yes'
         },
-        PARTIALS: project.partials
+        PARTIALS: project.partials,
+        INTENTS: project.intents
       }, null, " "))
 
     await this.sendInfo(project)

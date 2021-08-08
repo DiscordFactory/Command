@@ -2,6 +2,7 @@ export default {
   "APP_TOKEN": "",
   "APP_PREFIX": "",
   "PARTIALS": "",
+  "INTENTS": "",
   "PRESETS": {
     "COMMAND_AUTO_REMOVE": true
   },
