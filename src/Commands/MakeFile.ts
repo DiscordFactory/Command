@@ -2,7 +2,6 @@ import BaseCommand from "../BaseCommand";
 import { prompt } from 'enquirer'
 import path from "path";
 import { ClientEvents } from 'discord.js'
-import Events from '../Settings/Events'
 import Hooks from '../Settings/Hooks'
 import Colors from "../types/Colors";
 import Command from "../decorators/Command";
@@ -14,6 +13,8 @@ import MakeModel from "../makes/MakeModel";
 import MakeMigrationCreateTable from "../makes/MakeMigrationCreateTable";
 import MakeMigrationAlterTable from "../makes/MakeMigrationAlterTable";
 import MakeSlashCommand from "../makes/MakeSlashCommand";
+import Events from '../Settings/Events'
+import Logger from '@leadcodedev/logger'
 
 @Command({
   label: 'Make file',
@@ -31,7 +32,8 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
     try {
       const type = (await this.choiceType()).type
       await this.dispatchType(type)
-    } catch {
+    } catch (err) {
+      Logger.send('error', 'An error has occurred')
     }
   }
 
@@ -82,6 +84,7 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
         }
       })
     } catch {
+      Logger.send('error', 'An error has occurred')
     }
   }
 
@@ -94,6 +97,7 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
         choices: Events,
       })
     } catch {
+      Logger.send('error', 'An error has occurred')
     }
   }
 
@@ -106,6 +110,7 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
         choices: Hooks,
       })
     } catch {
+      Logger.send('error', 'An error has occurred')
     }
   }
 
@@ -117,6 +122,7 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
         type: 'input'
       })
     } catch {
+      Logger.send('error', 'An error has occurred')
     }
   }
 
@@ -128,6 +134,7 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
         type: 'input'
       })
     } catch {
+      Logger.send('error', 'An error has occurred')
     }
   }
 
@@ -150,21 +157,33 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
     const filename = (await this.choiceFilename())!.filename
 
     if (event && filename) {
-      await new MakeEvent().run(filename, { event })
+      try {
+        await new MakeEvent().run(filename, { event })
+      } catch (err) {
+        Logger.send('error', 'An error has occurred')
+      }
     }
   }
 
   private async initializeCommand (): Promise<void> {
     const filename = (await this.choiceFilename())!.filename
     if (filename) {
-      await new MakeCommand().run(filename)
+      try {
+        await new MakeCommand().run(filename)
+      } catch (err) {
+        Logger.send('error', 'An error has occurred')
+      }
     }
   }
 
   private async initializeSlashCommand (): Promise<void> {
     const filename = (await this.choiceFilename())!.filename
     if (filename) {
-      await new MakeSlashCommand().run(filename)
+      try {
+        await new MakeSlashCommand().run(filename)
+      } catch (err) {
+        Logger.send('error', 'An error has occurred')
+      }
     }
   }
 
@@ -173,7 +192,11 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
     const filename = (await this.choiceFilename())!.filename
 
     if (middleware && filename) {
-      await new MakeMiddleware().run(filename, { middleware })
+      try {
+        await new MakeMiddleware().run(filename, { middleware })
+      } catch (err) {
+        Logger.send('error', 'An error has occurred')
+      }
     }
   }
 
@@ -182,7 +205,11 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
     const filename = (await this.choiceFilename())!.filename
 
     if (hook && filename) {
-      await new MakeHook().run(filename, { hook })
+      try {
+        await new MakeHook().run(filename, { hook })
+      } catch (err) {
+        Logger.send('error', 'An error has occurred')
+      }
     }
   }
 
@@ -190,7 +217,11 @@ export default class MakeFile<K extends keyof ClientEvents> extends BaseCommand 
     const filename = (await this.choiceFilename())!.filename
 
     if (filename) {
-      await new MakeModel().run(filename)
+      try {
+        await new MakeModel().run(filename)
+      } catch (err) {
+        Logger.send('error', 'An error has occurred')
+      }
     }
   }
 

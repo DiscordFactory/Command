@@ -13,6 +13,7 @@
 		"factory": "build/index.js"
 	},
 	"dependencies": {
+		"@leadcodedev/logger": "^1.0.0",
 		"ava": "^3.15.0",
 		"chalk": "^4.1.0",
 		"cross-env": "^7.0.3",

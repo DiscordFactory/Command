@@ -36,22 +36,3 @@ export default class CommandManager {
     })
   }
 }
-
-// export default class CommandManager {
-//   private commandList: Map<string, BaseCommand> = new Map()
-//
-//   public register (command: BaseCommand) {
-//     const item = this.commandList.get(command.identifier)
-//
-//     if (item) {
-//       process.stdout.write(`${Colors.TextCyan}Your project has been well initiated.${Colors.Reset}\n`)
-//       Logger.send('error', `The ${item.identifier} was already registered`)
-//     }
-//
-//     this.commandList.set(command.identifier, command)
-//   }
-//
-//   public getCommand(identifier: string): BaseCommand | undefined {
-//     return this.commandList.get(identifier)
-//   }
-// }
