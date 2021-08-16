@@ -1,7 +1,7 @@
-import Help from "./Commands/Help";
-import { Command } from "./types/Command";
-import CreateProject from "./Commands/CreateProject";
-import MakeFile from "./Commands/MakeFile";
+import Help from './Commands/Help';
+import { Command } from './types/Command';
+import CreateProject from './Commands/CreateProject';
+import MakeFile from './Commands/MakeFile';
 
 export default class CommandManager {
   public static $instance: CommandManager

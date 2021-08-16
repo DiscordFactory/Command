@@ -1,8 +1,8 @@
-import BaseMakeFile from "../BaseMakeFile";
-import path from "path";
-import fs from "fs";
-import Colors from "../types/Colors";
-import { prepareFile } from "../utils/Files";
+import BaseMakeFile from '../BaseMakeFile';
+import path from 'path';
+import fs from 'fs';
+import Colors from '../types/Colors';
+import { prepareFile } from '../utils/Files'
 import { FileOptions } from "../types/Makes";
 
 export default class MakeEvent extends BaseMakeFile {

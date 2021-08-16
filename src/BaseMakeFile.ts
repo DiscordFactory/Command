@@ -1,4 +1,4 @@
-import { FileOptions } from "./types/Makes";
+import { FileOptions } from './types/Makes';
 
 export default abstract class BaseMakeFile {
   protected constructor (public type: string) {

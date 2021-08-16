@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 // import Dispatcher from './Dispatcher'
-import CommandManager from "./CommandManager";
+import CommandManager from './CommandManager';
 
 const [, , commandName, ...params] = process.argv
 // const dispatcher: Dispatcher = new Dispatcher()

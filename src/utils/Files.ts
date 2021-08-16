@@ -1,5 +1,5 @@
-import path from "path";
-import fs from "fs";
+import path from 'path';
+import fs from 'fs';
 
 export async function prepareFile (type: string, targetLocation: string) {
   const location = path.parse(targetLocation)

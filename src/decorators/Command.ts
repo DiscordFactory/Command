@@ -1,4 +1,4 @@
-import { CommandContext } from "../types/Command";
+import { CommandContext } from '../types/Command';
 
 export default function Command (context: CommandContext) {
   return (target: Function) => {

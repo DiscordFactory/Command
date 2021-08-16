@@ -1,18 +1,18 @@
-import BaseCommand from "../BaseCommand";
+import BaseCommand from '../BaseCommand';
 import { prompt } from 'enquirer'
-import path from "path";
+import path from 'path';
 import { ClientEvents } from 'discord.js'
 import Hooks from '../Settings/Hooks'
-import Colors from "../types/Colors";
-import Command from "../decorators/Command";
-import MakeCommand from "../makes/MakeCommand";
-import MakeEvent from "../makes/MakeEvent";
-import MakeHook from "../makes/MakeHook";
-import MakeMiddleware from "../makes/MakeMiddleware";
-import MakeModel from "../makes/MakeModel";
-import MakeMigrationCreateTable from "../makes/MakeMigrationCreateTable";
-import MakeMigrationAlterTable from "../makes/MakeMigrationAlterTable";
-import MakeSlashCommand from "../makes/MakeSlashCommand";
+import Colors from '../types/Colors';
+import Command from '../decorators/Command';
+import MakeCommand from '../makes/MakeCommand';
+import MakeEvent from '../makes/MakeEvent';
+import MakeHook from '../makes/MakeHook';
+import MakeMiddleware from '../makes/MakeMiddleware';
+import MakeModel from '../makes/MakeModel';
+import MakeMigrationCreateTable from '../makes/MakeMigrationCreateTable';
+import MakeMigrationAlterTable from '../makes/MakeMigrationAlterTable'
+import MakeSlashCommand from '../makes/MakeSlashCommand'
 import Events from '../Settings/Events'
 import Logger from '@leadcodedev/logger'
 
