@@ -2,8 +2,8 @@ import { Event, BaseEvent } from '@discord-factory/core'
 
 @Event('$event')
 export default class $className implements BaseEvent {
-	public async run(args: any): Promise<void> {
-		// Please go to the documentation in order to know the parameters you can use
-		// Your code here
-	}
+  public async run($args): Promise<void> {
+    // Please go to the documentation in order to know the parameters you can use
+    // Your code here
+  }
 }
